@@ -233,16 +233,6 @@ header h1 {
     box-shadow: 0 4px 12px rgba(231, 76, 60, 0.4);
 }
 
-#tapTempoBtn {
-    background: rgba(255, 255, 255, 0.2);
-    color: #fff;
-}
-
-#tapTempoBtn:hover {
-    background: rgba(255, 255, 255, 0.3);
-    transform: translateY(-2px);
-}
-
 .control-btn:active {
     transform: translateY(0);
 }

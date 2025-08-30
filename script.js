@@ -9,7 +9,6 @@ class Metronome {
         this.volume = 0.7;
         this.accentFirst = true;
         this.wakeLock = null;
-        this.tapTimes = [];
         
         this.initializeAudio();
         this.initializeElements();
@@ -36,7 +35,6 @@ class Metronome {
         this.decreaseBpm = document.getElementById('decreaseBpm');
         this.increaseBpm = document.getElementById('increaseBpm');
         this.startStopBtn = document.getElementById('startStopBtn');
-        this.tapTempoBtn = document.getElementById('tapTempoBtn');
         this.timeSignatureSelect = document.getElementById('timeSignature');
         this.volumeSlider = document.getElementById('volumeSlider');
         this.accentFirstCheckbox = document.getElementById('accentFirst');
@@ -97,11 +95,6 @@ class Metronome {
         // Start/Stop button
         this.startStopBtn.addEventListener('click', () => {
             this.togglePlayback();
-        });
-
-        // Tap tempo
-        this.tapTempoBtn.addEventListener('click', () => {
-            this.tapTempo();
         });
 
         // Time signature
@@ -359,44 +352,6 @@ class Metronome {
         } else {
             this.start();
         }
-    }
-
-    tapTempo() {
-        const now = Date.now();
-        this.tapTimes.push(now);
-
-        // Keep only the last 8 taps
-        if (this.tapTimes.length > 8) {
-            this.tapTimes.shift();
-        }
-
-        // Need at least 2 taps to calculate tempo
-        if (this.tapTimes.length >= 2) {
-            const intervals = [];
-            for (let i = 1; i < this.tapTimes.length; i++) {
-                intervals.push(this.tapTimes[i] - this.tapTimes[i - 1]);
-            }
-
-            const averageInterval = intervals.reduce((a, b) => a + b) / intervals.length;
-            const bpm = Math.round(60000 / averageInterval);
-
-            // Only update if BPM is within reasonable range
-            if (bpm >= 40 && bpm <= 200) {
-                this.setBPM(bpm);
-            }
-        }
-
-        // Clear old taps after 3 seconds of inactivity
-        setTimeout(() => {
-            const currentTime = Date.now();
-            this.tapTimes = this.tapTimes.filter(time => currentTime - time < 3000);
-        }, 3000);
-
-        // Visual feedback
-        this.tapTempoBtn.style.transform = 'scale(0.95)';
-        setTimeout(() => {
-            this.tapTempoBtn.style.transform = '';
-        }, 100);
     }
 
     async requestWakeLock() {
