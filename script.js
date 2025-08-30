@@ -156,24 +156,79 @@ class Metronome {
     createBeep(frequency = 800, duration = 0.1, accent = false) {
         if (!this.audioContext) return;
 
-        const oscillator = this.audioContext.createOscillator();
+        const now = this.audioContext.currentTime;
+        
+        // Create multiple oscillators for a richer mechanical sound
+        const oscillator1 = this.audioContext.createOscillator();
+        const oscillator2 = this.audioContext.createOscillator();
+        const noiseBuffer = this.createNoiseBuffer();
+        const noiseSource = this.audioContext.createBufferSource();
+        
         const gainNode = this.audioContext.createGain();
-
-        oscillator.connect(gainNode);
+        const noiseGain = this.audioContext.createGain();
+        const filter = this.audioContext.createBiquadFilter();
+        
+        // Configure main oscillators for the "tick" sound
+        const baseFreq = accent ? 1200 : 800;
+        oscillator1.frequency.value = baseFreq;
+        oscillator1.type = 'square'; // Square wave for sharper attack
+        
+        oscillator2.frequency.value = baseFreq * 2; // Harmonic for richness
+        oscillator2.type = 'triangle';
+        
+        // Configure noise for mechanical texture
+        noiseSource.buffer = noiseBuffer;
+        filter.type = 'highpass';
+        filter.frequency.value = 2000;
+        filter.Q.value = 1;
+        
+        // Connect audio nodes
+        oscillator1.connect(gainNode);
+        oscillator2.connect(gainNode);
+        noiseSource.connect(noiseGain);
+        noiseGain.connect(filter);
+        filter.connect(gainNode);
         gainNode.connect(this.masterGain);
 
-        // Set frequency (higher for accent)
-        oscillator.frequency.value = accent ? frequency * 1.5 : frequency;
-        oscillator.type = 'sine';
-
-        // Set volume envelope
-        const now = this.audioContext.currentTime;
+        // Create mechanical metronome envelope (sharp attack, quick decay)
+        const attackTime = 0.005; // Very quick attack (5ms)
+        const decayTime = 0.03;   // Quick decay (30ms)
+        const sustainLevel = accent ? 0.4 : 0.25;
+        const releaseTime = accent ? 0.08 : 0.05;
+        
+        // Main oscillator envelope
         gainNode.gain.setValueAtTime(0, now);
-        gainNode.gain.linearRampToValueAtTime(0.3, now + 0.01);
-        gainNode.gain.exponentialRampToValueAtTime(0.001, now + duration);
+        gainNode.gain.linearRampToValueAtTime(sustainLevel, now + attackTime);
+        gainNode.gain.exponentialRampToValueAtTime(sustainLevel * 0.3, now + attackTime + decayTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.001, now + attackTime + decayTime + releaseTime);
+        
+        // Noise envelope (even shorter for just the initial "click")
+        const noiseLevel = accent ? 0.15 : 0.08;
+        noiseGain.gain.setValueAtTime(0, now);
+        noiseGain.gain.linearRampToValueAtTime(noiseLevel, now + 0.002);
+        noiseGain.gain.exponentialRampToValueAtTime(0.001, now + 0.015);
 
-        oscillator.start(now);
-        oscillator.stop(now + duration);
+        // Start and stop sounds
+        oscillator1.start(now);
+        oscillator1.stop(now + attackTime + decayTime + releaseTime);
+        
+        oscillator2.start(now);
+        oscillator2.stop(now + attackTime + decayTime + releaseTime);
+        
+        noiseSource.start(now);
+        noiseSource.stop(now + 0.02);
+    }
+
+    createNoiseBuffer() {
+        const bufferSize = this.audioContext.sampleRate * 0.02; // 20ms of noise
+        const buffer = this.audioContext.createBuffer(1, bufferSize, this.audioContext.sampleRate);
+        const output = buffer.getChannelData(0);
+
+        for (let i = 0; i < bufferSize; i++) {
+            output[i] = Math.random() * 2 - 1; // White noise
+        }
+
+        return buffer;
     }
 
     beat() {
