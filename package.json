@@ -1,0 +1,18 @@
+{
+  "name": "metronome-pwa",
+  "version": "1.0.0",
+  "description": "A metronome PWA that runs completely offline and prevents screen from going to sleep",
+  "main": "index.html",
+  "scripts": {
+    "start": "npx serve .",
+    "dev": "npx live-server .",
+    "build": "echo 'No build step required for vanilla PWA'"
+  },
+  "keywords": ["metronome", "pwa", "offline", "music", "rhythm"],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "live-server": "^1.2.2",
+    "serve": "^14.2.1"
+  }
+}

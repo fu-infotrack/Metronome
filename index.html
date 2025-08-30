@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Metronome PWA</title>
+    
+    <!-- PWA Configuration -->
+    <meta name="theme-color" content="#2c3e50">
+    <meta name="description" content="A metronome PWA that runs completely offline">
+    <link rel="manifest" href="manifest.json">
+    
+    <!-- Apple PWA Support -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Metronome">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192x192.png">
+    <link rel="apple-touch-icon" href="icons/icon-192x192.png">
+    
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="app">
+        <header>
+            <h1>🎵 Metronome</h1>
+        </header>
+        
+        <main class="metronome-container">
+            <!-- BPM Display -->
+            <div class="bpm-display">
+                <div class="bpm-value" id="bpmValue">120</div>
+                <div class="bpm-label">BPM</div>
+            </div>
+            
+            <!-- BPM Controls -->
+            <div class="bpm-controls">
+                <button class="bpm-btn" id="decreaseBpm" aria-label="Decrease BPM">-</button>
+                <input type="range" id="bpmSlider" min="40" max="200" value="120" class="bpm-slider">
+                <button class="bpm-btn" id="increaseBpm" aria-label="Increase BPM">+</button>
+            </div>
+            
+            <!-- Time Signature -->
+            <div class="time-signature">
+                <label for="timeSignature">Time Signature:</label>
+                <select id="timeSignature" class="time-select">
+                    <option value="4">4/4</option>
+                    <option value="3">3/4</option>
+                    <option value="2">2/4</option>
+                    <option value="6">6/8</option>
+                </select>
+            </div>
+            
+            <!-- Beat Indicator -->
+            <div class="beat-indicator" id="beatIndicator">
+                <div class="beat-dots" id="beatDots">
+                    <div class="dot active"></div>
+                    <div class="dot"></div>
+                    <div class="dot"></div>
+                    <div class="dot"></div>
+                </div>
+            </div>
+            
+            <!-- Controls -->
+            <div class="controls">
+                <button class="control-btn start-stop" id="startStopBtn">
+                    <span class="btn-text">START</span>
+                </button>
+                <button class="control-btn" id="tapTempoBtn">TAP TEMPO</button>
+            </div>
+            
+            <!-- Volume Control -->
+            <div class="volume-control">
+                <label for="volumeSlider">🔊 Volume:</label>
+                <input type="range" id="volumeSlider" min="0" max="1" step="0.1" value="0.7" class="volume-slider">
+            </div>
+            
+            <!-- Settings -->
+            <div class="settings">
+                <div class="setting-item">
+                    <label for="accentFirst">
+                        <input type="checkbox" id="accentFirst" checked>
+                        Accent first beat
+                    </label>
+                </div>
+                <div class="setting-item">
+                    <label for="keepScreenOn">
+                        <input type="checkbox" id="keepScreenOn" checked>
+                        Keep screen awake
+                    </label>
+                </div>
+            </div>
+        </main>
+        
+        <footer>
+            <p>Offline Metronome PWA</p>
+        </footer>
+    </div>
+    
+    <script src="script.js"></script>
+</body>
+</html>
