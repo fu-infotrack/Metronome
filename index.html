@@ -29,7 +29,7 @@
         
         <main class="metronome-container">
             <!-- BPM Display -->
-            <div class="bpm-display">
+            <div class="bpm-display" id="bpmDisplay">
                 <div class="bpm-value" id="bpmValue">120</div>
                 <div class="bpm-label">BPM</div>
             </div>
@@ -96,6 +96,18 @@
         <footer>
             <p>Offline Metronome PWA</p>
         </footer>
+    </div>
+    
+    <!-- BPM Input Modal -->
+    <div class="modal-overlay" id="bpmModal">
+        <div class="modal-content">
+            <h3>Enter BPM</h3>
+            <input type="number" id="bpmModalInput" min="40" max="200" placeholder="Enter BPM (40-200)">
+            <div class="modal-buttons">
+                <button class="modal-btn cancel" id="cancelBpm">Cancel</button>
+                <button class="modal-btn confirm" id="confirmBpm">Set BPM</button>
+            </div>
+        </div>
     </div>
     
     <script src="script.js"></script>

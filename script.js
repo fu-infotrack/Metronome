@@ -31,6 +31,7 @@ class Metronome {
     initializeElements() {
         // Get DOM elements
         this.bpmValue = document.getElementById('bpmValue');
+        this.bpmDisplay = document.getElementById('bpmDisplay');
         this.bpmSlider = document.getElementById('bpmSlider');
         this.decreaseBpm = document.getElementById('decreaseBpm');
         this.increaseBpm = document.getElementById('increaseBpm');
@@ -42,12 +43,47 @@ class Metronome {
         this.keepScreenOnCheckbox = document.getElementById('keepScreenOn');
         this.beatDots = document.getElementById('beatDots');
         this.app = document.querySelector('.app');
+        
+        // Modal elements
+        this.bpmModal = document.getElementById('bpmModal');
+        this.bpmModalInput = document.getElementById('bpmModalInput');
+        this.cancelBpm = document.getElementById('cancelBpm');
+        this.confirmBpm = document.getElementById('confirmBpm');
     }
 
     bindEvents() {
         // BPM controls
         this.bpmSlider.addEventListener('input', (e) => {
             this.setBPM(parseInt(e.target.value));
+        });
+
+        // BPM display click to open modal
+        this.bpmDisplay.addEventListener('click', () => {
+            this.openBpmModal();
+        });
+
+        // Modal events
+        this.cancelBpm.addEventListener('click', () => {
+            this.closeBpmModal();
+        });
+
+        this.confirmBpm.addEventListener('click', () => {
+            this.setBpmFromModal();
+        });
+
+        this.bpmModalInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                this.setBpmFromModal();
+            } else if (e.key === 'Escape') {
+                this.closeBpmModal();
+            }
+        });
+
+        // Close modal when clicking overlay
+        this.bpmModal.addEventListener('click', (e) => {
+            if (e.target === this.bpmModal) {
+                this.closeBpmModal();
+            }
         });
 
         this.decreaseBpm.addEventListener('click', () => {
@@ -117,6 +153,34 @@ class Metronome {
         }
     }
 
+    updateDisplay() {
+        this.bpmValue.textContent = this.bpm;
+    }
+
+    openBpmModal() {
+        this.bpmModalInput.value = this.bpm;
+        this.bpmModal.classList.add('show');
+        this.bpmModalInput.focus();
+        this.bpmModalInput.select();
+    }
+
+    closeBpmModal() {
+        this.bpmModal.classList.remove('show');
+    }
+
+    setBpmFromModal() {
+        const value = parseInt(this.bpmModalInput.value);
+        if (!isNaN(value) && value >= 40 && value <= 200) {
+            this.setBPM(value);
+            this.closeBpmModal();
+        } else {
+            // Show error or reset to current value
+            this.bpmModalInput.value = this.bpm;
+            this.bpmModalInput.focus();
+            this.bpmModalInput.select();
+        }
+    }
+
     setTimeSignature(beats) {
         this.timeSignature = beats;
         this.currentBeat = 0;
@@ -128,10 +192,6 @@ class Metronome {
         if (this.masterGain) {
             this.masterGain.gain.value = volume;
         }
-    }
-
-    updateDisplay() {
-        this.bpmValue.textContent = this.bpm;
     }
 
     updateBeatDisplay() {
