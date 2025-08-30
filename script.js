@@ -12,6 +12,7 @@ class Metronome {
         
         this.initializeAudio();
         this.initializeElements();
+        this.loadSettings(); // Load saved settings
         this.bindEvents();
         this.updateDisplay();
         this.requestWakeLock();
@@ -110,6 +111,7 @@ class Metronome {
         // Settings
         this.accentFirstCheckbox.addEventListener('change', (e) => {
             this.accentFirst = e.target.checked;
+            this.saveSettings(); // Save settings when accent preference changes
         });
 
         this.keepScreenOnCheckbox.addEventListener('change', (e) => {
@@ -118,6 +120,7 @@ class Metronome {
             } else {
                 this.releaseWakeLock();
             }
+            this.saveSettings(); // Save settings when wake lock preference changes
         });
 
         // Keyboard shortcuts
@@ -139,6 +142,7 @@ class Metronome {
         this.bpm = bpm;
         this.bpmSlider.value = bpm;
         this.updateDisplay();
+        this.saveSettings(); // Save settings when BPM changes
         
         if (this.isPlaying) {
             this.stop();
@@ -178,6 +182,7 @@ class Metronome {
         this.timeSignature = beats;
         this.currentBeat = 0;
         this.updateBeatDisplay();
+        this.saveSettings(); // Save settings when time signature changes
     }
 
     setVolume(volume) {
@@ -185,6 +190,7 @@ class Metronome {
         if (this.masterGain) {
             this.masterGain.gain.value = volume;
         }
+        this.saveSettings(); // Save settings when volume changes
     }
 
     updateBeatDisplay() {
@@ -375,6 +381,63 @@ class Metronome {
         if (this.wakeLock) {
             this.wakeLock.release();
             this.wakeLock = null;
+        }
+    }
+
+    saveSettings() {
+        const settings = {
+            bpm: this.bpm,
+            timeSignature: this.timeSignature,
+            volume: this.volume,
+            accentFirst: this.accentFirst,
+            keepScreenOn: this.keepScreenOnCheckbox?.checked || true
+        };
+        
+        try {
+            localStorage.setItem('metronome-settings', JSON.stringify(settings));
+        } catch (error) {
+            console.warn('Could not save settings to localStorage:', error);
+        }
+    }
+
+    loadSettings() {
+        try {
+            const savedSettings = localStorage.getItem('metronome-settings');
+            if (savedSettings) {
+                const settings = JSON.parse(savedSettings);
+                
+                // Apply saved settings
+                if (settings.bpm >= 40 && settings.bpm <= 200) {
+                    this.bpm = settings.bpm;
+                }
+                
+                if ([2, 3, 4, 6].includes(settings.timeSignature)) {
+                    this.timeSignature = settings.timeSignature;
+                }
+                
+                if (settings.volume >= 0 && settings.volume <= 1) {
+                    this.volume = settings.volume;
+                }
+                
+                if (typeof settings.accentFirst === 'boolean') {
+                    this.accentFirst = settings.accentFirst;
+                }
+                
+                // Update UI elements after loading settings
+                setTimeout(() => {
+                    if (this.bpmSlider) this.bpmSlider.value = this.bpm;
+                    if (this.timeSignatureSelect) this.timeSignatureSelect.value = this.timeSignature;
+                    if (this.volumeSlider) this.volumeSlider.value = this.volume;
+                    if (this.accentFirstCheckbox) this.accentFirstCheckbox.checked = this.accentFirst;
+                    if (this.keepScreenOnCheckbox && typeof settings.keepScreenOn === 'boolean') {
+                        this.keepScreenOnCheckbox.checked = settings.keepScreenOn;
+                    }
+                    if (this.masterGain) this.masterGain.gain.value = this.volume;
+                    this.updateBeatDisplay();
+                }, 0);
+            }
+        } catch (error) {
+            console.warn('Could not load settings from localStorage:', error);
         }
     }
 }
